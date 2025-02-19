@@ -5,37 +5,33 @@
     }
 
     if ($action == 'create' && $param == ''){
-        $sql = "INSERT INTO cliente (";
-
-        $contador = 1;
-        foreach (array_keys($_POST) as $valor){
-            if (count($_POST)> $contador){
-                $sql .= "{$valor},";
-            } else {
-                $sql .= "{$valor}";
+        try {
+            $db = DB::connect();
+            $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+            // Verifica se há dados para inserir
+            if (empty($_POST)) {
+                echo json_encode(["error" => "Nenhum dado enviado"]);
+                exit;
             }
-            $contador++;
-        }
-        $sql .= ") VALUES (";
-        $contador = 1;
-        foreach (array_values($_POST) as $valor){
-            if (count($_POST)> $contador){
-                $sql .= "'{$valor}',";
+    
+            // Criando os placeholders (:campo1, :campo2, etc.)
+            $campos = array_keys($_POST);
+            $placeholders = array_map(fn($campo) => ":$campo", $campos);
+    
+            // Montando a query com segurança
+            $sql = "INSERT INTO cliente (" . implode(", ", $campos) . ") VALUES (" . implode(", ", $placeholders) . ")";
+            $stmt = $db->prepare($sql);
+    
+            // Executando a query com valores seguros
+            $exec = $stmt->execute($_POST);
+    
+            if ($exec) {
+                echo json_encode(["data" => "Dados inseridos com sucesso"]);
             } else {
-                $sql .= "'{$valor}'";
+                echo json_encode(["error" => "Erro ao inserir dados"]);
             }
-            $contador++;
-        }
-        $sql .= ")";
-        
-        
-        $db = DB::connect();
-        $rs = $db->prepare($sql);
-        $exec = $rs->execute();
-
-        if ($exec){
-            echo json_encode(["data"=> "Dados postados com sucesso"]);
-        } else {
-            echo json_encode(["error"=> "Algum erro ocorreu"]);
+        } catch (PDOException $e) {
+            echo json_encode(["error" => "Erro no banco de dados"]);
         }
     }
