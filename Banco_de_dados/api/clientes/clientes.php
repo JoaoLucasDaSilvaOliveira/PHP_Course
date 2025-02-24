@@ -6,9 +6,9 @@
     if ($method == 'POST'&& $api == 'db'){
         include_once 'post.php';
     }
-    if ($method == 'POST' && $_POST["_method"] == 'PUT'){
+    if ($method == 'PUT'&& $api == "db"){
         include_once 'put.php';
     }
-    if ($method == 'POST'&& $_POST['_method'] == 'DELETE'){
+    if ($method  == 'DELETE'&& $api == "db"){
         include_once 'delete.php';
     }

@@ -1,6 +1,8 @@
 <?php
 
-    header('Access-Control-Allow-Origin: *');
+    header("Access-Control-Allow-Origin: *");
+    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
+    header("Access-Control-Allow-Headers: Content-Type");
     header('Content-type: application/json');
 
     date_default_timezone_set('America/Sao_Paulo');
@@ -11,7 +13,6 @@
         echo 'Caminho não existe';
         exit;
     }
-
     if (isset($path[0])) {
         $api = $path[0];
     } else {

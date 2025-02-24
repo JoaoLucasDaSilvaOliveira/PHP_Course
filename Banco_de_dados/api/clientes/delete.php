@@ -7,7 +7,6 @@
         echo "É necessário informar um cliente";
     }
     if ($action == 'delete'&& $param != ''){
-        array_shift($_POST);
         try{
             $db = DB::connect();
             $rs = $db->prepare("DELETE FROM cliente WHERE ID_CLIENTE = :id");

@@ -11,4 +11,4 @@
     $joao->falar();
     //adicionando caracteristicas após a criação do objeto
     $joao->nome = "João";
-    echo "<br>".$joao->nome.", idade: ".$joao->idade;
+    echo "<br>$joao->nome, idade: $joao->idade";
