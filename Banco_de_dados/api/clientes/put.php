@@ -1,6 +1,17 @@
 <?php
 $dados = json_decode(file_get_contents("php://input"), true);
-print_r($dados);
+
+// Captura correta do ID da URL
+$url_parts = explode("/", $_SERVER['REQUEST_URI']);
+$param = end($url_parts);
+$param = explode("?", $param)[0]; // Remove query string
+$param = filter_var($param, FILTER_SANITIZE_NUMBER_INT);
+
+// Valida se o ID é um número válido
+if (!ctype_digit($param)) {
+    echo json_encode(["error" => "ID_CLIENTE inválido"]);
+    exit;
+}
 
 if ($action === '' && $param === '') {
     echo json_encode(['Error' => 'Caminho não encontrado']);
@@ -18,9 +29,9 @@ if ($action == 'update' && !empty($param)) {
 
     foreach ($dados as $indice => $valor) {
         if ($indice !== 'ID_CLIENTE') {
-            $campos[] = "`$indice` = :$indice";
+            $campos[] = "$indice = :$indice";
             $valores[":$indice"] = $valor;
-        }
+        }   
     }
 
     if (empty($campos)) {
@@ -31,8 +42,7 @@ if ($action == 'update' && !empty($param)) {
 
     // Query corrigida
     $sql = "UPDATE cliente SET " . implode(", ", $campos) . " WHERE ID_CLIENTE = :ID_CLIENTE";
-    print_r($sql); // Depuração: veja se a query está correta
-
+    
     $valores[":ID_CLIENTE"] = $param;
 
     try {
@@ -40,14 +50,13 @@ if ($action == 'update' && !empty($param)) {
         $rs = $db->prepare($sql);
         $rs->execute($valores);
 
-        // ✅ Verifica quantas linhas foram afetadas
         if ($rs->rowCount() > 0) {
             echo json_encode(["data" => "Dados atualizados com sucesso"]);
         } else {
-            echo json_encode(["error" => "Nenhum registro encontrado para atualização"]);
+            echo json_encode(["error" => "Nenhum registro encontrado para atualização ou valores já eram os mesmos"]);
         }
     } catch (PDOException $e) {
         echo json_encode(["error" => $e->getMessage()]);
     }
 }
-    
+?>
